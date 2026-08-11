@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Генератор Бейджей</title>
+  <title>badgegen</title>
   <style>
     body {
       background: #0d1117;
@@ -89,44 +89,43 @@
 <body>
 
   <div class="container">
-    <h2>Бессерверный Генератор Бейджей</h2>
+    <h2>badgegen</h2>
     
     <label class="checkbox-field">
       <input type="checkbox" id="useLeft" checked>
-      <span>Включить левую плашку</span>
+      <span>left text enabled</span></span>
     </label>
 
     <div class="row">
       <div class="field" id="leftFieldBox">
-        <label>Левый текст</label>
+        <label>left text</label>
         <input type="text" id="leftText" value="status">
       </div>
       <div class="field">
-        <label>Правый текст</label>
+        <label>right text</label>
         <input type="text" id="rightText" value="онлайн">
       </div>
     </div>
 
     <div class="row">
       <div class="field">
-        <label>Цвет правой плашки</label>
+        <label>color for right text</label>
         <select id="rightColor">
-          <option value="#238636">Зеленый</option>
-          <option value="#1f6feb">Синий</option>
-          <option value="#da3633">Красный</option>
-          <option value="#8957e5">Фиолетовый</option>
-          <option value="#f0883e">Оранжевый</option>
-          <option value="#121212">Тёмная тема (#121212)</option>
+          <option value="#238636">green</option>
+          <option value="#1f6feb">blue</option>
+          <option value="#da3633">red</option>
+          <option value="#8957e5">violet</option>
+          <option value="#f0883e">orange</option>
+          <option value="#121212">black</option>
         </select>
       </div>
     </div>
     
     <div class="preview" id="badgePreview"></div>
     
-    <button onclick="downloadPNG()">📥 Скачать PNG</button>
+    <button onclick="downloadPNG()">download badge (.png)</button>
   </div>
 
-  <!-- Холст для рендеринга -->
   <canvas id="canvas" style="display:none;"></canvas>
 
   <script>
@@ -145,11 +144,9 @@
       const rightVal = rightText.value || "";
       const colorVal = rightColor.value;
 
-      // Управляем видимостью инпута для левого текста
       leftFieldBox.style.opacity = showLeft ? "1" : "0.4";
       leftText.disabled = !showLeft;
 
-      // Настройка шрифта для замера ширины
       ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
       
       const padding = 16;
@@ -160,37 +157,30 @@
       canvas.width = totalWidth;
       canvas.height = 20;
 
-      // Скругление углов всего бейджа
       ctx.beginPath();
       ctx.roundRect(0, 0, totalWidth, 20, 4);
       ctx.clip();
 
-      // Общие настройки текста
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       if (showLeft) {
-        // Рисуем левую плашку (серую)
         ctx.fillStyle = "#555555";
         ctx.fillRect(0, 0, leftWidth, 20);
         
-        // Текст на левой плашке
         ctx.fillStyle = "#ffffff";
         ctx.font = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
         ctx.fillText(leftVal, leftWidth / 2, 11);
       }
 
-      // Рисуем правую плашку (цветную)
       ctx.fillStyle = colorVal;
       ctx.fillRect(leftWidth, 0, rightWidth, 20);
 
-      // Текст на правой плашке
       ctx.fillStyle = "#ffffff";
       ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
       ctx.fillText(rightVal, leftWidth + (rightWidth / 2), 11);
 
-      // Обновляем превью на странице
       preview.innerHTML = `<img src="${canvas.toDataURL('image/png')}" alt="preview">`;
     }
 
@@ -201,13 +191,11 @@
       element.click();
     }
 
-    // Слушатели событий для моментальной перерисовки
     useLeft.addEventListener('change', drawBadge);
     leftText.addEventListener('input', drawBadge);
     rightText.addEventListener('input', drawBadge);
     rightColor.addEventListener('change', drawBadge);
 
-    // Первичный запуск
     drawBadge();
   </script>
 </body>
