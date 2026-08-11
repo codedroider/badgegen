@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PNG Base64 Генератор</title>
+  <style>
+    body {
+      background: #121212;
+      color: #E0E0E0;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container { max-width: 600px; width: 100%; text-align: center; }
+    input {
+      padding: 14px; width: 100%; font-size: 18px; border-radius: 8px;
+      border: 1px solid #333; background: #1e1e1e; color: #fff;
+      box-sizing: border-box; margin-bottom: 15px;
+    }
+    textarea {
+      padding: 10px; width: 100%; height: 100px; font-family: monospace;
+      background: #1a1a1a; color: #58a6ff; border: 1px solid #333;
+      border-radius: 8px; box-sizing: border-box; resize: none; margin-top: 15px;
+    }
+    button {
+      padding: 14px 28px; font-size: 16px; background: #0076ff; color: white;
+      border: none; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+    .preview-box { margin-top: 20px; border: 1px solid #333; border-radius: 12px; overflow: hidden; line-height: 0; }
+    p { color: #888; font-size: 14px; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Генератор PNG-кода для GitHub</h2>
+    <input type="text" id="textInput" value="Мой собственный статус!">
+    
+    <button onclick="copyToClipboard()">📋 Скопировать код для README</button>
+
+    <div class="preview-box">
+      <canvas id="textCanvas" width="800" height="200" style="width: 100%; height: auto;"></canvas>
+    </div>
+    
+    <p>Твой готовый код Markdown (генерируется автоматически):</p>
+    <textarea id="outputCode" readonly></textarea>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('textCanvas');
+    const ctx = canvas.getContext('2d');
+    const textInput = document.getElementById('textInput');
+    const outputCode = document.getElementById('outputCode');
+
+    function drawImage() {
+      const text = textInput.value;
+
+      ctx.fillStyle = '#121212';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = 'bold 42px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = '#E0E0E0';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const base64Data = canvas.toDataURL('image/png');
+      
+      outputCode.value = `![Статус](${base64Data})`;
+    }
+
+    function copyToClipboard() {
+      outputCode.select();
+      document.execCommand('copy');
+      alert('Код скопирован! Просто вставь его в свой README.md');
+    }
+
+    textInput.addEventListener('input', drawImage);
+    
+    drawImage();
+  </script>
+</body>
+</html>
