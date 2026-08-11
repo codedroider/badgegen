@@ -3,45 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ультра-генератор SVG Base64</title>
+  <title>Мой Генератор Бейджей</title>
   <style>
-    body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-    .container { max-width: 550px; width: 100%; text-align: center; background: #161b22; padding: 30px; border-radius: 12px; border: 1px solid #30363d; box-sizing: border-box; }
-    input { padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #fff; box-sizing: border-box; width: 100%; margin-bottom: 15px; }
-    button { padding: 14px; width: 100%; font-size: 16px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: -apple-system, system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: #161b22;
+      padding: 30px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    input {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #fff;
+      box-sizing: border-box;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 14px;
+      width: 100%;
+      font-size: 16px;
+      background: #238636;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
     button:hover { background: #2ea44f; }
-    textarea { padding: 12px; width: 100%; height: 110px; font-family: monospace; background: #0d1117; color: #58a6ff; border: 1px solid #30363d; border-radius: 6px; box-sizing: border-box; resize: none; margin-top: 15px; }
-    .preview { margin: 20px 0; border: 1px dashed #30363d; padding: 10px; background: #000; border-radius: 8px; }
+    textarea {
+      padding: 12px;
+      width: 100%;
+      height: 90px;
+      font-family: monospace;
+      background: #0d1117;
+      color: #58a6ff;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      box-sizing: border-box;
+      resize: none;
+      margin-top: 15px;
+    }
+    .preview {
+      margin: 20px 0;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>Бессерверный Base64 SVG Генератор</h2>
-    <input type="text" id="textInput" value="Мой статичный статус">
+    <h2>Твой Бессерверный Генератор</h2>
+    <input type="text" id="textInput" value="мой статус">
     
-    <div class="preview" id="svgPreview"></div>
+    <div class="preview" id="badgePreview"></div>
     
     <button onclick="copyCode()">📋 Скопировать Markdown код</button>
     <textarea id="outputCode" readonly></textarea>
   </div>
 
+  <!-- Скрытый холст, на котором браузер рисует бейдж -->
+  <canvas id="canvas" style="display:none;"></canvas>
+
   <script>
     const textInput = document.getElementById('textInput');
-    const preview = document.getElementById('svgPreview');
+    const preview = document.getElementById('badgePreview');
     const output = document.getElementById('outputCode');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-    function generateCode() {
-      const text = textInput.value || "Текст";
-
-      const rawSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 60" width="100%" height="100%"><style>.bg{fill:#121212;rx:8px}.txt{font-family:system-ui,sans-serif;font-size:22px;font-weight:bold;fill:#E0E0E0}</style><rect width="100%" height="100%" class="bg"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" class="txt">${text}</text></svg>`;
-
-      const base64 = btoa(unescape(encodeURIComponent(rawSvg)));
+    function generateBadge() {
+      const text = textInput.value || "статус";
       
-      const dataUrl = `data:image/svg+xml;base64,${base64}`;
+      // 1. Считаем размеры
+      ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      const textWidth = Math.ceil(ctx.measureText(text).width);
+      
+      const leftWidth = 50; // Фиксированная ширина левой части "status"
+      const padding = 16;
+      const rightWidth = textWidth + padding;
+      const totalWidth = leftWidth + rightWidth;
+      
+      canvas.width = totalWidth;
+      canvas.height = 20;
 
-      preview.innerHTML = `<img src="${dataUrl}" style="max-width:100%">`;
-      output.value = `![Статус](${dataUrl})`;
+      // 2. Рисуем скругленный прямоугольник (подложку)
+      ctx.beginPath();
+      ctx.roundRect(0, 0, totalWidth, 20, 4);
+      ctx.clip();
+
+      // 3. Красим левую половину (серый)
+      ctx.fillStyle = "#555555";
+      ctx.fillRect(0, 0, leftWidth, 20);
+
+      // 4. Красим правую половину (темная тема)
+      ctx.fillStyle = "#1f6feb"; // Фирменный синий гитхаба (можешь поменять на #121212)
+      ctx.fillRect(leftWidth, 0, rightWidth, 20);
+
+      // 5. Настройки текста
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      // Текст слева
+      ctx.fillText("status", leftWidth / 2, 11);
+
+      // Текст справа (твой кастомный)
+      ctx.font = "bold 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillText(text, leftWidth + (rightWidth / 2), 11);
+
+      // 6. Переводим холст в PNG Base64
+      const base64Data = canvas.toDataURL('image/png');
+
+      // Выводим результат
+      preview.innerHTML = `<img src="${base64Data}" alt="preview">`;
+      output.value = `![Статус](${base64Data})`;
     }
 
     function copyCode() {
@@ -50,8 +149,9 @@
       alert('Код скопирован! Теперь просто вставь его в свой README.md');
     }
 
-    textInput.addEventListener('input', generateCode);
-    generateCode(); 
+    textInput.addEventListener('input', generateBadge);
+    // Генерируем при первой загрузке страницы
+    generateBadge();
   </script>
 </body>
 </html>
